@@ -52,6 +52,7 @@ end
 -- Custom unit (default 1 pt)
 -- Can be set in IPE by "Set unit"
 CUSTOM_UNIT = 1
+FORMAT = "%.0f"
 
 local function incorrect_input(model, s)
   model:warning("Cannot compute length", s)
@@ -128,6 +129,246 @@ function distangl(model)
   ipeui.messageBox(model.ui:win(), "information", outp, nil, nil)
 end
 
+function labelpathleft(model)
+  local p = model:page()
+  local prim = p:primarySelection()
+
+  if not prim then
+    incorrect_input(model, "No primary selection")
+    return
+  end
+  local points = {}
+  local obj = p[prim]
+  if (obj:type() ~= "path") then
+    incorrect_input(model, "Primary selection is of type " ..
+      obj:type() .. ", not a path")
+    return
+  end
+  -- incorrect_input(model, obj:type()) -- works: returns path
+  local shape = obj:shape()
+  local lastpoint
+  --model.ui:explain(shape.type)
+  for ind, subpath in ipairs(shape) do
+    if subpath.type ~= "curve" then
+      incorrect_input(model, "Some part of selection is not a polygonal path")
+      return
+    end
+    for i, s in ipairs(subpath) do
+      if s.type ~= "segment" then
+        incorrect_input(model, "Some part of selection is not a polygonal path")
+        return
+      end
+      table.insert(points, obj:matrix() * s[1])
+      lastpoint = s[2]
+    end
+    table.insert(points, obj:matrix() * lastpoint)
+    if subpath.closed then
+      table.insert(points, obj:matrix() * points[1])
+    end
+  end
+
+  local labels = {}
+  local vec1, vec2
+  local distance
+  local position
+  local attribs = model.attributes
+  attribs["horizontalalignment"] = "right"
+  attribs["verticalalignment"] = "vcenter"
+  for ind3, pt3 in ipairs(points) do
+    if (ind3 > 1) then
+      vec1 = pt3
+      vec2 = points[ind3-1]
+      distance = norm(vec1 - vec2)/CUSTOM_UNIT
+      position = 0.5 * (vec1 + vec2) - ipe.Vector(5,0)
+      labels[#labels+1] = ipe.Text(model.attributes, _G.string.format(FORMAT,distance), position)
+      -- labels[#labels]:set('anchor', 'left vcenter')
+    end
+  end
+  local labs = ipe.Group(labels)
+  model:creation("create labels", labs)
+
+end
+
+function labelpathright(model)
+  local p = model:page()
+  local prim = p:primarySelection()
+
+  if not prim then
+    incorrect_input(model, "No primary selection")
+    return
+  end
+  local points = {}
+  local obj = p[prim]
+  if (obj:type() ~= "path") then
+    incorrect_input(model, "Primary selection is of type " ..
+      obj:type() .. ", not a path")
+    return
+  end
+  -- incorrect_input(model, obj:type()) -- works: returns path
+  local shape = obj:shape()
+  local lastpoint
+  --model.ui:explain(shape.type)
+  for ind, subpath in ipairs(shape) do
+    if subpath.type ~= "curve" then
+      incorrect_input(model, "Some part of selection is not a polygonal path")
+      return
+    end
+    for i, s in ipairs(subpath) do
+      if s.type ~= "segment" then
+        incorrect_input(model, "Some part of selection is not a polygonal path")
+        return
+      end
+      table.insert(points, obj:matrix() * s[1])
+      lastpoint = s[2]
+    end
+    table.insert(points, obj:matrix() * lastpoint)
+    if subpath.closed then
+      table.insert(points, obj:matrix() * points[1])
+    end
+  end
+
+  local labels = {}
+  local vec1, vec2
+  local distance
+  local position
+  local attribs = model.attributes
+  attribs["horizontalalignment"] = "left"
+  attribs["verticalalignment"] = "vcenter"
+  for ind3, pt3 in ipairs(points) do
+    if (ind3 > 1) then
+      vec1 = pt3
+      vec2 = points[ind3-1]
+      distance = norm(vec1 - vec2)/CUSTOM_UNIT
+      position = 0.5 * (vec1 + vec2) + ipe.Vector(5,0)
+      labels[#labels+1] = ipe.Text(model.attributes, _G.string.format(FORMAT,distance), position)
+      -- labels[#labels]:set('anchor', 'left vcenter')
+    end
+  end
+  local labs = ipe.Group(labels)
+  model:creation("create labels", labs)
+
+end
+
+function labelpathtop(model)
+  local p = model:page()
+  local prim = p:primarySelection()
+
+  if not prim then
+    incorrect_input(model, "No primary selection")
+    return
+  end
+  local points = {}
+  local obj = p[prim]
+  if (obj:type() ~= "path") then
+    incorrect_input(model, "Primary selection is of type " ..
+      obj:type() .. ", not a path")
+    return
+  end
+  -- incorrect_input(model, obj:type()) -- works: returns path
+  local shape = obj:shape()
+  local lastpoint
+  --model.ui:explain(shape.type)
+  for ind, subpath in ipairs(shape) do
+    if subpath.type ~= "curve" then
+      incorrect_input(model, "Some part of selection is not a polygonal path")
+      return
+    end
+    for i, s in ipairs(subpath) do
+      if s.type ~= "segment" then
+        incorrect_input(model, "Some part of selection is not a polygonal path")
+        return
+      end
+      table.insert(points, obj:matrix() * s[1])
+      lastpoint = s[2]
+    end
+    table.insert(points, obj:matrix() * lastpoint)
+    if subpath.closed then
+      table.insert(points, obj:matrix() * points[1])
+    end
+  end
+
+  local labels = {}
+  local vec1, vec2
+  local distance
+  local position
+  local attribs = model.attributes
+  attribs["horizontalalignment"] = "hcenter"
+  attribs["verticalalignment"] = "bottom"
+  for ind3, pt3 in ipairs(points) do
+    if (ind3 > 1) then
+      vec1 = pt3
+      vec2 = points[ind3-1]
+      distance = norm(vec1 - vec2)/CUSTOM_UNIT
+      position = 0.5 * (vec1 + vec2) + ipe.Vector(0,5)
+      labels[#labels+1] = ipe.Text(model.attributes, _G.string.format(FORMAT,distance), position)
+      -- labels[#labels]:set('anchor', 'left vcenter')
+    end
+  end
+  local labs = ipe.Group(labels)
+  model:creation("create labels", labs)
+
+end
+
+function labelpathbottom(model)
+  local p = model:page()
+  local prim = p:primarySelection()
+
+  if not prim then
+    incorrect_input(model, "No primary selection")
+    return
+  end
+  local points = {}
+  local obj = p[prim]
+  if (obj:type() ~= "path") then
+    incorrect_input(model, "Primary selection is of type " ..
+      obj:type() .. ", not a path")
+    return
+  end
+  -- incorrect_input(model, obj:type()) -- works: returns path
+  local shape = obj:shape()
+  local lastpoint
+  --model.ui:explain(shape.type)
+  for ind, subpath in ipairs(shape) do
+    if subpath.type ~= "curve" then
+      incorrect_input(model, "Some part of selection is not a polygonal path")
+      return
+    end
+    for i, s in ipairs(subpath) do
+      if s.type ~= "segment" then
+        incorrect_input(model, "Some part of selection is not a polygonal path")
+        return
+      end
+      table.insert(points, obj:matrix() * s[1])
+      lastpoint = s[2]
+    end
+    table.insert(points, obj:matrix() * lastpoint)
+    if subpath.closed then
+      table.insert(points, obj:matrix() * points[1])
+    end
+  end
+
+  local labels = {}
+  local vec1, vec2
+  local distance
+  local position
+  local attribs = model.attributes
+  attribs["horizontalalignment"] = "hcenter"
+  attribs["verticalalignment"] = "top"
+  for ind3, pt3 in ipairs(points) do
+    if (ind3 > 1) then
+      vec1 = pt3
+      vec2 = points[ind3-1]
+      distance = norm(vec1 - vec2)/CUSTOM_UNIT
+      position = 0.5 * (vec1 + vec2) - ipe.Vector(0,5)
+      labels[#labels+1] = ipe.Text(model.attributes, _G.string.format(FORMAT,distance), position)
+      -- labels[#labels]:set('anchor', 'left vcenter')
+    end
+  end
+  local labs = ipe.Group(labels)
+  model:creation("create labels", labs)
+
+end
+
 function setunit(model)
   local p = model:page()
   local prim = p:primarySelection()
@@ -184,4 +425,8 @@ end
 methods = {
   { label = "Measure distances and angles", run = distangl },
   { label = "Set unit",                     run = setunit },
+  { label = "Mark distances right",         run = labelpathright},
+  { label = "Mark distances left",          run = labelpathleft},
+  { label = "Mark distances above",         run = labelpathtop},
+  { label = "Mark distances below",         run = labelpathbottom},
 }
