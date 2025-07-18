@@ -53,6 +53,7 @@ end
 -- Can be set in IPE by "Set unit"
 CUSTOM_UNIT = 1
 FORMAT = "%.0f"
+DISTANCE = 5
 
 local function incorrect_input(model, s)
   model:warning("Cannot compute length", s)
@@ -179,7 +180,7 @@ function labelpathleft(model)
       vec1 = pt3
       vec2 = points[ind3-1]
       distance = norm(vec1 - vec2)/CUSTOM_UNIT
-      position = 0.5 * (vec1 + vec2) - ipe.Vector(5,0)
+      position = 0.5 * (vec1 + vec2) - ipe.Vector(DISTANCE,0)
       labels[#labels+1] = ipe.Text(model.attributes, _G.string.format(FORMAT,distance), position)
       -- labels[#labels]:set('anchor', 'left vcenter')
     end
@@ -239,7 +240,7 @@ function labelpathright(model)
       vec1 = pt3
       vec2 = points[ind3-1]
       distance = norm(vec1 - vec2)/CUSTOM_UNIT
-      position = 0.5 * (vec1 + vec2) + ipe.Vector(5,0)
+      position = 0.5 * (vec1 + vec2) + ipe.Vector(DISTANCE,0)
       labels[#labels+1] = ipe.Text(model.attributes, _G.string.format(FORMAT,distance), position)
       -- labels[#labels]:set('anchor', 'left vcenter')
     end
@@ -299,7 +300,7 @@ function labelpathtop(model)
       vec1 = pt3
       vec2 = points[ind3-1]
       distance = norm(vec1 - vec2)/CUSTOM_UNIT
-      position = 0.5 * (vec1 + vec2) + ipe.Vector(0,5)
+      position = 0.5 * (vec1 + vec2) + ipe.Vector(0,DISTANCE)
       labels[#labels+1] = ipe.Text(model.attributes, _G.string.format(FORMAT,distance), position)
       -- labels[#labels]:set('anchor', 'left vcenter')
     end
@@ -359,7 +360,7 @@ function labelpathbottom(model)
       vec1 = pt3
       vec2 = points[ind3-1]
       distance = norm(vec1 - vec2)/CUSTOM_UNIT
-      position = 0.5 * (vec1 + vec2) - ipe.Vector(0,5)
+      position = 0.5 * (vec1 + vec2) - ipe.Vector(0,DISTANCE)
       labels[#labels+1] = ipe.Text(model.attributes, _G.string.format(FORMAT,distance), position)
       -- labels[#labels]:set('anchor', 'left vcenter')
     end
@@ -398,12 +399,12 @@ function setunit(model)
         incorrect_input(model, "Some part of selection is not a polygonal path")
         return
       end
-      table.insert(points, s[1])
+      table.insert(points, obj:matrix() * s[1])
       lastpoint = s[2]
     end
-    table.insert(points, lastpoint)
+    table.insert(points, obj:matrix() * lastpoint)
     if subpath.closed then
-      table.insert(points, points[1])
+      table.insert(points, obj:matrix() * points[1])
     end
   end
 
@@ -430,3 +431,9 @@ methods = {
   { label = "Mark distances above",         run = labelpathtop},
   { label = "Mark distances below",         run = labelpathbottom},
 }
+
+shortcuts.ipelet_2_measurement = "Ctrl+Shift+1"
+shortcuts.ipelet_3_measurement = "Ctrl+Shift+6"
+shortcuts.ipelet_4_measurement = "Ctrl+Shift+4"
+shortcuts.ipelet_5_measurement = "Ctrl+Shift+8"
+shortcuts.ipelet_6_measurement = "Ctrl+Shift+2"
